@@ -5,7 +5,7 @@ import { UserContext } from "../../UserContext";
 
 export default function AccountFormPage() {
   const { id } = useParams();
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const navigate = useNavigate();
   const { user: currentUser } = useContext(UserContext);
 
   const [user, setUser] = useState("");
@@ -13,7 +13,7 @@ export default function AccountFormPage() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false); // Added state for admin switch
+  const [isAdmin, setIsAdmin] = useState(false);
   const [redirect, setRedirect] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -28,7 +28,7 @@ export default function AccountFormPage() {
         const { data } = await axios.get(`/auth/users/${id}`);
         setUser(data.user);
         setEmail(data.email);
-        setIsAdmin(data.admin || false); // Set the admin state based on fetched data
+        setIsAdmin(data.admin || false);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -39,99 +39,89 @@ export default function AccountFormPage() {
 
   const validateField = (name, value) => {
     let errorMsg = "";
-    if (
-      !value.trim() &&
-      name !== "newPassword" &&
-      name !== "confirmNewPassword"
-    )
-      errorMsg = "This field is required.";
+    if (!value.trim()) errorMsg = "This field is required.";
     if (name === "email" && !/^\S+@\S+\.\S+$/.test(value))
-      errorMsg = "Please enter a valid email address.";
-    if (name === "newPassword" && value.length > 0 && value.length < 8)
-      errorMsg = "New password must be at least 8 characters.";
-    if (
-      name === "confirmNewPassword" &&
-      newPassword.length > 0 &&
-      value !== newPassword
-    )
-      errorMsg = "Passwords do not match.";
+      errorMsg = "Моля въведете реален имейл адрес.";
+    if (name === "newPassword" && value && value.length < 8)
+      errorMsg = "Паролата трябва да е поне 8 символа.";
+    if (name === "confirmNewPassword" && value !== newPassword)
+      errorMsg = "Паролите не съвпадат.";
+
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMsg }));
     return errorMsg;
   };
 
   const isFormValid = () => {
-    const newErrors = {};
-    newErrors.user = validateField("user", user);
-    newErrors.email = validateField("email", email);
-    if (currentUser._id === id) {
-      if (newPassword) {
-        newErrors.newPassword = validateField("newPassword", newPassword);
-        newErrors.confirmNewPassword = validateField(
-          "confirmNewPassword",
-          confirmNewPassword
-        );
-      }
-    }
+    const fieldsToValidate = {
+      user,
+      email,
+      ...(newPassword && { newPassword, confirmNewPassword }),
+    };
+    const newErrors = Object.keys(fieldsToValidate).reduce((acc, key) => {
+      const error = validateField(key, fieldsToValidate[key]);
+      if (error) acc[key] = error;
+      return acc;
+    }, {});
+
     setErrors(newErrors);
-    return Object.keys(newErrors).every((key) => !newErrors[key]);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
-    if (!isFormValid()) {
-      alert("Моля попълнете всички полета правилно.");
-      return;
-    }
+    if (!isFormValid()) return;
 
-    const userData = {
+    let userData = {
       user,
       email,
-      ...(currentUser._id === id &&
-        oldPassword &&
-        newPassword && { oldPassword, newPassword }),
-      ...(currentUser.admin && { admin: isAdmin }), // Update the user's admin status if the current user is an admin
+      newPassword,
+      ...(currentUser.admin && currentUser._id !== id ? {} : { oldPassword }),
+      admin: isAdmin,
     };
 
     try {
       await axios.put(`/auth/users/${id}`, userData);
-      setRedirect(true);
+      navigate("/");
     } catch (error) {
       console.error("Error updating user data:", error);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (window.confirm("Сигурни ли сте че искате да изтриете този акаунт?")) {
-      try {
-        await axios.delete(`/auth/users/${id}`, { withCredentials: true });
-        navigate("/");
-      } catch (error) {
-        console.error("Error deleting user account:", error);
-        alert("Имаше грешка, моля опитайте отново или се свържете с нас.");
-      }
+    const isConfirmed = window.confirm(
+      "Сигурни ли сте че искате да изтриете този акаунт?"
+    );
+    if (!isConfirmed) return;
+
+    try {
+      await axios.delete(`/auth/users/${id}`);
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting user account:", error);
+      alert("Имаше грешка, моля опитайте отново.");
     }
   };
 
   if (redirect) {
-    return <Navigate to="/" />;
+    return <Navigate to="/admin" />;
   }
 
   return (
     <div
-      className={`bg-background p-5 flex justify-center items-center ${
-        currentUser._id !== id
-          ? "min-h-96 mt-5 mb-8 pb-72"
-          : "min-h-screen -mt-20"
-      }`}
+      className="bg-background p-5 flex justify-center items-center min-h-screen"
+      style={{
+        background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
+        minHeight: "80vh",
+      }}
     >
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg bg-contrastBg rounded-lg shadow-md p-8"
       >
-        <h1 className="text-2xl font-semibold mb-6 text-primary">
+        <h1 className="text-2xl font-semibold mb-3 text-primary">
           Редактиране на акаунт
         </h1>
 
-        {/* User input */}
         <div className="mb-5">
           <label htmlFor="user" className="block text-primary font-bold mb-2">
             Потребителско име
@@ -141,20 +131,14 @@ export default function AccountFormPage() {
             type="text"
             placeholder="Потребителско име"
             value={user}
-            onChange={(ev) => {
-              setUser(ev.target.value);
-              validateField("user", ev.target.value);
-            }}
-            className={`w-full p-3 border ${
-              errors.user ? "border-orange" : "border-mContrastWhite"
-            } rounded-md focus:outline-none focus:ring-2 focus:ring-primary`}
+            onChange={(e) => setUser(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none"
           />
           {errors.user && (
-            <p className="text-orange text-xs italic">{errors.user}</p>
+            <p className="text-red-500 text-xs italic">{errors.user}</p>
           )}
         </div>
 
-        {/* Email input */}
         <div className="mb-5">
           <label htmlFor="email" className="block text-primary font-bold mb-2">
             Имейл
@@ -164,118 +148,95 @@ export default function AccountFormPage() {
             type="email"
             placeholder="Имейл"
             value={email}
-            onChange={(ev) => {
-              setEmail(ev.target.value);
-              validateField("email", ev.target.value);
-            }}
-            className={`w-full p-3 border ${
-              errors.email ? "border-orange" : "border-mContrastWhite"
-            } rounded-md focus:outline-none focus:ring-2 focus:ring-primary`}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none"
           />
           {errors.email && (
-            <p className="text-orange text-xs italic">{errors.email}</p>
+            <p className="text-red-500 text-xs italic">{errors.email}</p>
           )}
         </div>
 
-        {/* Password inputs, conditional rendering based on whether the currentUser is editing their own account */}
-        {currentUser._id === id && (
-          <>
-            <div className="mb-5">
-              <label
-                htmlFor="oldPassword"
-                className="block text-primary font-bold mb-2"
-              >
-                Стара парола
-              </label>
-              <input
-                id="oldPassword"
-                type="password"
-                placeholder="Стара парола"
-                value={oldPassword}
-                onChange={(ev) => setOldPassword(ev.target.value)}
-                className="w-full p-3 border border-mContrastWhite rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="mb-5">
-              <label
-                htmlFor="newPassword"
-                className="block text-primary font-bold mb-2"
-              >
-                Нова парола
-              </label>
-              <input
-                id="newPassword"
-                type="password"
-                placeholder="Нова парола"
-                value={newPassword}
-                onChange={(ev) => {
-                  setNewPassword(ev.target.value);
-                  validateField("newPassword", ev.target.value);
-                }}
-                className={`w-full p-3 border ${
-                  errors.newPassword ? "border-orange" : "border-mContrastWhite"
-                } rounded-md focus:outline-none focus:ring-2 focus:ring-primary`}
-              />
-              {errors.newPassword && (
-                <p className="text-orange text-xs italic">
-                  {errors.newPassword}
-                </p>
-              )}
-            </div>
-            <div className="mb-5">
-              <label
-                htmlFor="confirmNewPassword"
-                className="block text-primary font-bold mb-2"
-              >
-                Потвърди нова парола
-              </label>
-              <input
-                id="confirmNewPassword"
-                type="password"
-                placeholder="Потвърди нова парола"
-                value={confirmNewPassword}
-                onChange={(ev) => {
-                  setConfirmNewPassword(ev.target.value);
-                  validateField("confirmNewPassword", ev.target.value);
-                }}
-                className={`w-full p-3 border ${
-                  errors.confirmNewPassword
-                    ? "border-orange"
-                    : "border-mContrastWhite"
-                } rounded-md focus:outline-none focus:ring-2 focus:ring-primary`}
-              />
-              {errors.confirmNewPassword && (
-                <p className="text-orange text-xs italic">
-                  {errors.confirmNewPassword}
-                </p>
-              )}
-            </div>
-          </>
+        {(!currentUser.admin || currentUser._id === id) && (
+          <div className="mb-5">
+            <label
+              htmlFor="oldPassword"
+              className="block text-primary font-bold mb-2"
+            >
+              Стара парола
+            </label>
+            <input
+              id="oldPassword"
+              type="password"
+              placeholder="Стара парола"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none"
+            />
+            {/* Show error for oldPassword if any */}
+          </div>
         )}
 
-        {/* Admin switch */}
+        <div className="mb-5">
+          <label
+            htmlFor="newPassword"
+            className="block text-primary font-bold mb-2"
+          >
+            Нова парола
+          </label>
+          <input
+            id="newPassword"
+            type="password"
+            placeholder="Нова парола"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none"
+          />
+          {errors.newPassword && (
+            <p className="text-red-500 text-xs italic">{errors.newPassword}</p>
+          )}
+        </div>
+
+        <div className="mb-5">
+          <label
+            htmlFor="confirmNewPassword"
+            className="block text-primary font-bold mb-2"
+          >
+            Потвърди нова парола
+          </label>
+          <input
+            id="confirmNewPassword"
+            type="password"
+            placeholder="Потвърди нова парола"
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none"
+          />
+          {errors.confirmNewPassword && (
+            <p className="text-red-500 text-xs italic">
+              {errors.confirmNewPassword}
+            </p>
+          )}
+        </div>
+
         {currentUser.admin && (
           <div className="mb-5 flex items-center">
-            <label
-              htmlFor="isAdmin"
-              className="block text-primary font-bold mr-2"
-            >
-              Администратор:
-            </label>
             <input
               id="isAdmin"
               type="checkbox"
               checked={isAdmin}
               onChange={(e) => setIsAdmin(e.target.checked)}
-              className="form-checkbox h-6 w-6 text-primary rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+              className="form-checkbox h-5 w-5 text-primary rounded mr-2"
             />
+            <label htmlFor="isAdmin" className="text-primary font-bold">
+              Администратор
+            </label>
           </div>
         )}
 
-        <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-4">
+        <div className="flex justify-between">
           <button
             type="submit"
-            className="bg-primary hover:bg-blue text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto"
+            className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Запази
           </button>
@@ -285,14 +246,12 @@ export default function AccountFormPage() {
           >
             Отказ
           </Link>
-          {(currentUser._id === id || currentUser.admin) && (
-            <button
-              onClick={handleDeleteAccount}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto"
-            >
-              Изтрий акаунт
-            </button>
-          )}
+          <button
+            onClick={handleDeleteAccount}
+            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Изтрий акаунт
+          </button>
         </div>
       </form>
     </div>
