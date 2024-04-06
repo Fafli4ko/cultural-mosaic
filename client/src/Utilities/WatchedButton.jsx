@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+
+// Utilize environment variables for API base URL
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function WatchedButton({
   user,
@@ -9,53 +12,48 @@ function WatchedButton({
   removeFromWatchedText,
   isInWatched,
 }) {
-  // Use the state to track if the item is watched
   const [isWatched, setIsWatched] = useState(isInWatched);
 
-  const handleAddToWatched = async () => {
+  useEffect(() => {
+    setIsWatched(isInWatched); // Synchronize state with prop changes
+  }, [isInWatched]);
+
+  const toggleWatchedStatus = async () => {
     if (!media._id || !user._id) {
       console.error("Invalid media ID or user ID");
       return;
     }
+
+    const method = isWatched ? "delete" : "put";
+    const url = isWatched
+      ? `/${mediaType}/${user._id}/watched/${media._id}`
+      : `/${mediaType}/${user._id}/watched`;
+    const data = isWatched ? {} : { showId: media._id };
+
     try {
-      await axios.put(`/${mediaType}/${user._id}/watched`, {
-        showId: media._id,
-      });
-      setIsWatched(true); // Update state to reflect the change
+      await axios({ method, url: `${BASE_URL}${url}`, data });
+      setIsWatched(!isWatched); // Toggle watched state
     } catch (error) {
-      console.error("Error adding media to watched list:", error);
+      console.error(`Error toggling media in watched list:`, error);
     }
   };
 
-  const handleRemoveFromWatched = async () => {
-    if (!media._id || !user._id) {
-      console.error("Invalid media ID or user ID");
-      return;
-    }
-    try {
-      await axios.delete(`/${mediaType}/${user._id}/watched/${media._id}`);
-      setIsWatched(false); // Update state to reflect the change
-    } catch (error) {
-      console.error("Error removing media from watched list:", error);
-    }
-  };
-
-  // Dynamically set button text and styles based on watched state
-  const actionText = isWatched
-    ? "Премахни от изгледани"
-    : "Добави към изгледани";
+  // Update button text and styles based on the watched state
   const buttonStyles = isWatched
     ? "bg-contrastBlue hover:bg-blue font-bold"
     : "bg-blue hover:bg-contrastBlue font-bold";
+  const actionText = isWatched ? removeFromWatchedText : addToWatchedText;
 
   return (
     <button
       className={`${buttonStyles} text-white py-3 px-5 flex items-center justify-start rounded-2xl transition-colors duration-150 ease-in-out w-full`}
-      onClick={isWatched ? handleRemoveFromWatched : handleAddToWatched}
+      onClick={toggleWatchedStatus}
     >
       <div className="flex items-center">
-        {isWatched ? removeFromWatchedText : addToWatchedText}
-        <span className="ml-2 text-sm">{actionText}</span>
+        {actionText}
+        <span className="ml-2 text-sm">
+          {isWatched ? "Премахни от изгледани" : "Добави към изгледани"}
+        </span>
       </div>
     </button>
   );
