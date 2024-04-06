@@ -31,23 +31,23 @@ app.use(
 //media-admin-parola-24
 
 //#region AuthUser stuff
-app.use("/auth", require("./routes/authRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
 //#endregion
 
 //#region Photo Upload stuff
-app.use("/photoUploader", require("./routes/photoUploaderRoutes"));
+app.use("/api/photoUploader", require("./routes/photoUploaderRoutes"));
 //#endregion
 
 //#region Movie stuff
-app.use("/movies", require("./routes/movieRoutes"));
+app.use("/api/movies", require("./routes/movieRoutes"));
 //#endregion
 
 //#region Show stuff
-app.use("/shows", require("./routes/showRoutes"));
+app.use("/api/shows", require("./routes/showRoutes"));
 //#endregion
 
 //#region Book stuff
-app.use("/books", require("./routes/bookRoutes"));
+app.use("/api/books", require("./routes/bookRoutes"));
 //#endregion
 
 app.listen(4000);
