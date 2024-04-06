@@ -16,7 +16,7 @@ import ToWatchPage from "./pages/User/ToWatchPage.jsx";
 import BookPage from "./pages/Books/BookPage.jsx";
 import AboutUs from "./pages/AboutUs.jsx";
 
-axios.defaults.baseURL = "http://localhost:4000";
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.withCredentials = true;
 
 export default function App() {
