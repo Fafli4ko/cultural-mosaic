@@ -11,6 +11,7 @@ import {
   WatchLaterIcon,
 } from "../../Icons";
 import Image from "../../Utilities/Image";
+import { motion } from "framer-motion";
 
 export default function ShowPage() {
   const { id } = useParams();
@@ -48,7 +49,7 @@ export default function ShowPage() {
   useEffect(() => {
     if (isRated && show && user) {
       const userIndex = show.hasBeenRatedBy.findIndex((id) => id === user._id);
-      const rating = userIndex !== -1 ? show.rating[userIndex] : 0; // Corrected to `show.ratings`
+      const rating = userIndex !== -1 ? show.ratings[userIndex] : 0;
       setuserRating(rating);
     }
   }, [isRated, show, user]);
@@ -76,13 +77,29 @@ export default function ShowPage() {
       setIsRated(true);
       setAverageRating(updatedShow.averageRating);
     } catch (error) {
-      setErrorMessage("Неуспешно оценяване на филма. Моля, опитайте по-късно.");
+      setErrorMessage(
+        "Неуспешно оценяване на сериал. Моля, опитайте по-късно."
+      );
       console.error("Error rating the show:", error);
     }
   };
 
   if (!show) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        className="flex justify-center items-center"
+        style={{
+          background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
+          minHeight: "80vh",
+        }}
+      >
+        <div className="inline-block p-6 bg-orange rounded-lg shadow-lg">
+          <div className="text-center p-4 bg-lightOrange rounded-lg">
+            <div className="text-3xl font-bold text-mWhite">Зареждане...</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const isInWatchlist = user.toWatchShows.includes(show._id);
@@ -90,20 +107,26 @@ export default function ShowPage() {
 
   return (
     <div
-      className="min-h-fit pb-16 bg-[#F8FAFC] text-gray-900"
+      className="pb-2 bg-[#F8FAFC] text-gray-900"
       style={{
         background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
+        minHeight: "80vh",
       }}
     >
       <div className="container mx-auto px-4 py-16">
         <div className="flex flex-wrap -mx-3">
           <div className="w-full lg:w-1/4 px-3 mb-6 lg:mb-0">
             {show.photos?.[0] && (
-              <Image
-                className="rounded-xl object-cover w-full h-auto shadow-lg"
-                src={show.photos[0]}
-                alt={show.title}
-              />
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 200 }}
+              >
+                <Image
+                  className="rounded-xl object-cover w-full h-auto shadow-lg"
+                  src={show.photos[0]}
+                  alt={show.title}
+                />
+              </motion.div>
             )}
           </div>
           <div className="w-full lg:w-1/2 px-3 transition-shadow duration-300">
@@ -129,8 +152,8 @@ export default function ShowPage() {
                   {show.genre.join(", ")}
                 </p>
                 <p className="text-base leading-relaxed">
-                  <span className="font-semibold">Времетраене:</span>{" "}
-                  {show.runTime} минути
+                  <span className="font-semibold">Сезони:</span> {show.seasons}{" "}
+                  сезона
                 </p>
               </div>
             </div>
@@ -200,7 +223,7 @@ export default function ShowPage() {
               ) : (
                 <>
                   <div className="text-lg font-bold text-white mt-4">
-                    Оценете този филм:
+                    Оценете този сериал:
                   </div>
                   <div className="flex items-center justify-center">
                     <button

@@ -28,15 +28,11 @@ const DropdownMenu = () => {
     }, 100);
   };
 
-  const handleItemClick = (item) => {
-    console.log(`Selected item: ${item}`);
-    setIsOpen(false);
-  };
-
   async function logout() {
     await axios.post("/auth/logout");
     setRedirect("/");
     setUser(null);
+    <Navigate to="/" />;
   }
 
   if (redirect) {

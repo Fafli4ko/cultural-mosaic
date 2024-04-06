@@ -38,22 +38,47 @@ export default function IndexPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-4xl font-bold">Зареждане...</div>
+      <div
+        className="flex justify-center items-center"
+        style={{
+          background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
+          minHeight: "80vh",
+        }}
+      >
+        <div className="inline-block p-6 bg-orange rounded-lg shadow-lg">
+          <div className="text-center p-4 bg-lightOrange rounded-lg">
+            <div className="text-3xl font-bold text-mWhite">Зареждане...</div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (currentMedia.length === 0) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <p className="text-4xl font-bold text-gray-800 mb-4">
-            Няма намерени {subpage === "movies" ? "филми" : "медии"}
-          </p>
-          <p className="text-xl text-gray-600">
-            Опитайте да промените критериите за търсене.
-          </p>
+      <div
+        className="flex justify-center items-center"
+        style={{
+          background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
+          minHeight: "80vh",
+        }}
+      >
+        <div className="inline-block p-6 bg-orange rounded-lg shadow-lg">
+          <div className="text-center p-4 bg-lightOrange rounded-lg">
+            <p className="text-3xl font-bold text-mWhite mb-2">
+              Няма намерени{" "}
+              {subpage === "movies"
+                ? "филми"
+                : subpage === "shows"
+                ? "сериали"
+                : subpage === "books"
+                ? "книги"
+                : ""}
+            </p>
+            <p className="text-lg text-mWhite">
+              Опитайте да промените критериите за търсене.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -63,7 +88,7 @@ export default function IndexPage() {
     <div
       style={{
         background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
-        minHeight: "100vh",
+        minHeight: "90vh",
       }}
       className="w-full rounded-b-2xl"
     >
