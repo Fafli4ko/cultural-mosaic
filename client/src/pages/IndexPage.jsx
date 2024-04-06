@@ -14,40 +14,10 @@ export default function IndexPage() {
 
   const [currentMedia, setCurrentMedia] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Added loading state
-
-  // framer-motion configurations
-  const container = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.5,
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        opacity: { duration: 1 },
-        y: { type: "spring", stiffness: 100 },
-      },
-    },
-  };
-
-  // Simplified hover effect
-  const hoverEffect = {
-    scale: 1.05, // Slightly scale up on hover
-    transition: { type: "spring", stiffness: 300 },
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true at the start of fetching data
+    setIsLoading(true);
     const fetchData = async () => {
       try {
         const endpoint =
@@ -55,20 +25,38 @@ export default function IndexPage() {
             ? `/${subpage}/${subpage}`
             : `/${subpage}/search/${searchTerm}`;
         const response = await axios.get(endpoint);
-        // Perform randomization immediately after fetching data and before setting state
         const randomizedData = response.data.sort(() => Math.random() - 0.5);
         setCurrentMedia(randomizedData);
-        setIsLoading(false); // Data is ready, set loading to false
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setIsLoading(false); // Ensure loading is set to false even if there is an error
+        setIsLoading(false);
       }
     };
     fetchData();
   }, [subpage, searchTerm]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Or any other loading indicator you prefer
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-4xl font-bold">Зареждане...</div>
+      </div>
+    );
+  }
+
+  if (currentMedia.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <p className="text-4xl font-bold text-gray-800 mb-4">
+            Няма намерени {subpage === "movies" ? "филми" : "медии"}
+          </p>
+          <p className="text-xl text-gray-600">
+            Опитайте да промените критериите за търсене.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -82,7 +70,16 @@ export default function IndexPage() {
       <MediaNav className="p-1 justify-between" />
       <motion.div
         className="flex justify-center items-start pt-4 ml-12 mr-12 mt-7"
-        variants={container}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              delayChildren: 0.5,
+              staggerChildren: 0.2,
+            },
+          },
+        }}
         initial="hidden"
         animate="visible"
       >
@@ -91,8 +88,21 @@ export default function IndexPage() {
             <motion.div
               key={media._id}
               className="inline-block relative bg-white rounded-2xl shadow-lg overflow-hidden"
-              variants={item}
-              whileHover={hoverEffect}
+              variants={{
+                hidden: { y: 20, opacity: 0 },
+                visible: {
+                  y: 0,
+                  opacity: 1,
+                  transition: {
+                    opacity: { duration: 1 },
+                    y: { type: "spring", stiffness: 100 },
+                  },
+                },
+              }}
+              whileHover={{
+                scale: 1.05,
+                transition: { type: "spring", stiffness: 300 },
+              }}
             >
               <Link
                 to={user ? `/${subpage}/${media._id}` : `/login`}

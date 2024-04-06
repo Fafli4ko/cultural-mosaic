@@ -100,19 +100,15 @@ router.get("/shows", async (req, res) => {
   res.json(await Shows.find());
 });
 
-router.get("/search/:searchTerm", async (req, res) => {
+router.get("/search/:searchTerm?", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   let { searchTerm } = req.params;
+  // Build your query conditionally based on the presence of searchTerm
+  let query = searchTerm ? { translatedTitle: searchTerm } : {};
+
   try {
-    if (searchTerm === "undefined") {
-      res.json(await Shows.find());
-    } else {
-      res.json(
-        await Shows.find({
-          translatedTitle: searchTerm,
-        })
-      );
-    }
+    const shows = await Shows.find(query);
+    res.json(shows);
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -128,9 +124,9 @@ router.delete("/shows/:id", async (req, res) => {
     const showDoc = await Shows.findById(id);
     if (userData._id === userData.admin) {
       await Shows.findByIdAndDelete(id);
-      res.json("Movie deleted successfully");
+      res.json("Show deleted successfully");
     } else {
-      res.status(401).json("Not authorized to delete this movie");
+      res.status(401).json("Not authorized to delete this show");
     }
   });
 });
@@ -192,7 +188,7 @@ router.delete("/:userId/toWatch/:showId", async (req, res) => {
 router.get("/shows/toWatch/:id", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   try {
-    const userId = req.params.id; // Assuming user ID is available in the request parameters
+    const userId = req.params.id;
     const user = await User.findById(userId);
 
     // If user is not found, return a 404 error
@@ -200,8 +196,8 @@ router.get("/shows/toWatch/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const toWatchShows = user.toWatchShows || []; // Assuming watchedMovies is an array of movie IDs
-    const shows = await Shows.find({ _id: { $in: toWatchShows } }); // Assuming "Movie" is your Mongoose model for movies
+    const toWatchShows = user.toWatchShows || [];
+    const shows = await Shows.find({ _id: { $in: toWatchShows } });
     res.json(shows);
   } catch (error) {
     console.error("Error fetching to-watch shows:", error);
@@ -223,7 +219,7 @@ router.put("/:id/watched", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Add the show ID to the user's "toWatchShows" array
+    // Add the show ID to the user's "watchedShows" array
     user.watchedShows.push(showId);
 
     // Save the updated user object
@@ -236,11 +232,11 @@ router.put("/:id/watched", async (req, res) => {
   }
 });
 
-router.delete("/:userId/watched/:showId", async (req, res) => {
+router.delete("/:userId/watched/:mediaId", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   try {
     const userId = req.params.userId; // Extract user ID from the URL parameter
-    const showId = req.params.showId; // Extract show ID from the URL parameter
+    const showId = req.params.mediaId; // Extract show ID from the URL parameter
 
     // Find the user by ID
     const user = await User.findById(userId);
@@ -249,7 +245,7 @@ router.delete("/:userId/watched/:showId", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Remove the show ID from the user's "toWatchShows" array
+    // Remove the show ID from the user's "watchedShows" array
     user.watchedShows = user.watchedShows.filter((id) => id !== showId);
 
     // Save the updated user object
@@ -267,7 +263,7 @@ router.delete("/:userId/watched/:showId", async (req, res) => {
 router.get("/shows/watched/:id", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   try {
-    const userId = req.params.id; // Assuming user ID is available in the request parameters
+    const userId = req.params.id;
     const user = await User.findById(userId);
 
     // If user is not found, return a 404 error
@@ -275,8 +271,8 @@ router.get("/shows/watched/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const watchedShows = user.watchedShows || []; // Assuming toWatchShows is an array of show IDs
-    const shows = await Shows.find({ _id: { $in: watchedShows } }); // Assuming "Show" is your Mongoose model for shows
+    const watchedShows = user.watchedShows || [];
+    const shows = await Shows.find({ _id: { $in: watchedShows } });
     res.json(shows);
   } catch (error) {
     console.error("Error fetching to-watch shows:", error);

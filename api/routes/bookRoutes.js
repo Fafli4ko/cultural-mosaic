@@ -90,7 +90,7 @@ router.put("/books", async (req, res) => {
       bookDoc.save();
       res.json("ok");
     } else {
-      res.status(401).json("not your books to edit");
+      res.status(401).json("not your book to edit");
     }
   });
 });
@@ -100,19 +100,15 @@ router.get("/books", async (req, res) => {
   res.json(await Books.find());
 });
 
-router.get("/search/:searchTerm", async (req, res) => {
+router.get("/search/:searchTerm?", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   let { searchTerm } = req.params;
+  // Build your query conditionally based on the presence of searchTerm
+  let query = searchTerm ? { translatedTitle: searchTerm } : {};
+
   try {
-    if (searchTerm === "undefined") {
-      res.json(await Books.find());
-    } else {
-      res.json(
-        await Books.find({
-          translatedTitle: searchTerm,
-        })
-      );
-    }
+    const books = await Books.find(query);
+    res.json(books);
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -154,7 +150,7 @@ router.put("/:id/toWatch", async (req, res) => {
     // Save the updated user object
     await user.save();
 
-    res.status(200).json({ message: "Books added to watchlist successfully" });
+    res.status(200).json({ message: "Book added to watchlist successfully" });
   } catch (error) {
     console.error("Error adding book to watchlist:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -174,7 +170,7 @@ router.delete("/:userId/toWatch/:showId", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Remove the book ID from the user's "toWatchBook" array
+    // Remove the book ID from the user's "toReadBooks" array
     user.toReadBooks = user.toReadBooks.filter((id) => id !== bookId);
 
     // Save the updated user object
@@ -200,11 +196,11 @@ router.get("/books/toWatch/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const toReadBooks = user.toReadBooks || []; // Assuming toReadBooks is an array of book IDs
+    const toReadBooks = user.toReadBooks || [];
     const books = await Books.find({ _id: { $in: toReadBooks } }); // Assuming "Book" is your Mongoose model for books
     res.json(books);
   } catch (error) {
-    console.error("Error fetching to-read books:", error);
+    console.error("Error fetching to-watch books:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -257,7 +253,7 @@ router.delete("/:userId/watched/:mediaId", async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Book removed from watchlist successfully" });
+      .json({ message: "Books removed from watchlist successfully" });
   } catch (error) {
     console.error("Error removing book from watchlist:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -267,7 +263,7 @@ router.delete("/:userId/watched/:mediaId", async (req, res) => {
 router.get("/books/watched/:id", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   try {
-    const userId = req.params.id; // Assuming user ID is available in the request parameters
+    const userId = req.params.id;
     const user = await User.findById(userId);
 
     // If user is not found, return a 404 error
@@ -275,8 +271,8 @@ router.get("/books/watched/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const readBooks = user.readBooks || []; // Assuming readBooks is an array of book IDs
-    const books = await Books.find({ _id: { $in: readBooks } }); // Assuming "Books" is your Mongoose model for books
+    const readBooks = user.readBooks || [];
+    const books = await Books.find({ _id: { $in: readBooks } }); // Assuming "Book" is your Mongoose model for books
     res.json(books);
   } catch (error) {
     console.error("Error fetching to-watch books:", error);
@@ -291,29 +287,29 @@ router.post("/api/books/:id/rate", async (req, res) => {
     const { rating, userId } = req.body;
 
     // Check if the user has already rated the book
-    const books = await Books.findById(id);
-    if (books.hasBeenRatedBy.includes(userId)) {
+    const book = await Books.findById(id);
+    if (book.hasBeenRatedBy.includes(userId)) {
       return res.status(400).json({
         message: "You have already rated this book",
-        averageRating: books.averageRating,
+        averageRating: book.averageRating,
       });
     }
 
     // Add the user's ID to the hasBeenRatedBy array
-    books.hasBeenRatedBy.push(userId);
+    book.hasBeenRatedBy.push(userId);
 
     // Update the book's rating array
-    books.rating.push(rating);
+    book.rating.push(rating);
 
     // Calculate the average rating
     const averageRating =
-      books.rating.reduce((acc, curr) => acc + curr, 0) / books.rating.length;
-    books.averageRating = averageRating;
+      book.rating.reduce((acc, curr) => acc + curr, 0) / book.rating.length;
+    book.averageRating = averageRating;
 
     // Save the updated book
-    await books.save();
+    await book.save();
 
-    res.json({ ...books.toObject(), averageRating });
+    res.json({ ...book.toObject(), averageRating });
   } catch (error) {
     console.error("Error rating the book:", error);
     res.status(500).json({ message: "Internal Server Error" });

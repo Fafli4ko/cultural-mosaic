@@ -100,19 +100,15 @@ router.get("/movies", async (req, res) => {
   res.json(await Movies.find());
 });
 
-router.get("/search/:searchTerm", async (req, res) => {
+router.get("/search/:searchTerm?", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   let { searchTerm } = req.params;
+  // Build your query conditionally based on the presence of searchTerm
+  let query = searchTerm ? { translatedTitle: searchTerm } : {};
+
   try {
-    if (searchTerm === "undefined") {
-      res.json(await Movies.find());
-    } else {
-      res.json(
-        await Movies.find({
-          translatedTitle: searchTerm,
-        })
-      );
-    }
+    const movies = await Movies.find(query);
+    res.json(movies);
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal Server Error" });
