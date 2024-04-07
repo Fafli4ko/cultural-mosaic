@@ -39,7 +39,7 @@ export default function WatchedPage() {
   if (isLoading) {
     return (
       <div
-        className="flex justify-center items-center"
+        className="flex justify-center items-center pb-[60px] "
         style={{
           background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
           minHeight: "80vh",
@@ -48,6 +48,37 @@ export default function WatchedPage() {
         <div className="inline-block p-6 bg-orange rounded-lg shadow-lg">
           <div className="text-center p-4 bg-lightOrange rounded-lg">
             <div className="text-3xl font-bold text-mWhite">Зареждане...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentMedia.length === 0) {
+    return (
+      <div
+        className="flex justify-center items-center"
+        style={{
+          background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
+          minHeight: "80vh",
+        }}
+      >
+        <div className="inline-block p-6 bg-orange rounded-lg shadow-lg">
+          <div className="text-center p-4 bg-lightOrange rounded-lg">
+            <p className="text-3xl font-bold text-mWhite mb-2">
+              Няма намерени{" "}
+              {subpage === "movies"
+                ? "филми"
+                : subpage === "shows"
+                ? "сериали"
+                : subpage === "books"
+                ? "книги"
+                : ""}
+            </p>
+            <p className="text-lg text-mWhite">
+              Опитайте да добавите в{" "}
+              {subpage === "books" ? "прочетени" : "гледани"}.
+            </p>
           </div>
         </div>
       </div>
@@ -78,7 +109,7 @@ export default function WatchedPage() {
         initial="hidden"
         animate="visible"
       >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
           {currentMedia.map((media) => (
             <motion.div
               key={media._id}

@@ -53,7 +53,7 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
       <div className="flex gap-2">
         <input
           type="text"
-          placeholder="Add using a link ... jpg"
+          placeholder="Добави чрез линк ... .jpg"
           value={photoLink}
           onChange={(ev) => setPhotoLink(ev.target.value)}
           className="bg-gray-200 px-4 text-black rounded-2xl"
@@ -62,7 +62,7 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
           onClick={addPhotoByLink}
           className="bg-gray-200 px-4 text-black rounded-2xl"
         >
-          Add photo
+          Добави линка
         </button>
         <label className="h-10 mt-5 cursor-pointer flex justify-center bg-orange hover:bg-selectOrange p-2 rounded-full text-white text-2xl text-gray-500 w-20">
           <input
@@ -104,7 +104,6 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
                 onClick={(ev) => selectMainPhoto(ev, link)}
                 className="cursor-pointer absolute bottom-1 left-2 text-white bg-black bg-opacity-50 rounded-xl p-1"
               >
-                {/* Visual representation for selecting the main photo */}
                 {link === addedPhotos[0] ? <StarIcon /> : <StarIcon />}
               </button>
             </div>

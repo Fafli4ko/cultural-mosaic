@@ -49,7 +49,7 @@ export default function ShowPage() {
   useEffect(() => {
     if (isRated && show && user) {
       const userIndex = show.hasBeenRatedBy.findIndex((id) => id === user._id);
-      const rating = userIndex !== -1 ? show.ratings[userIndex] : 0;
+      const rating = userIndex !== -1 ? show.rating[userIndex] : 0;
       setuserRating(rating);
     }
   }, [isRated, show, user]);
@@ -223,19 +223,23 @@ export default function ShowPage() {
               ) : (
                 <>
                   <div className="text-lg font-bold text-white mt-4">
-                    Оценете този сериал:
+                    Оценете този филм:
                   </div>
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center mt-2">
                     <button
                       onClick={() => handleRatingChange(0.5)}
-                      className="rounded-tl-full rounded-bl-full bg-green-500 hover:bg-green-600 text-white p-2"
+                      className="flex justify-center items-center bg-green-500 hover:bg-green-600 text-white rounded-l-full h-[50px] w-[50px] transition duration-150 ease-in-out"
+                      aria-label="Increase rating"
                     >
                       ↑
                     </button>
-                    <div className="px-4 py-2 text-white">{rating}</div>
+                    <div className="flex justify-center items-center min-w-[60px] min-h-[50px] px-4 py-2 bg-mWhite font-semibold text-xl bg-blue-500 text-teal-600">
+                      {rating}
+                    </div>
                     <button
                       onClick={() => handleRatingChange(-0.5)}
-                      className="rounded-tr-full rounded-br-full bg-red-500 hover:bg-red-600 text-white p-2"
+                      className="flex justify-center items-center bg-red-500 hover:bg-red-600 text-white rounded-r-full h-[50px] w-[50px] transition duration-150 ease-in-out"
+                      aria-label="Decrease rating"
                     >
                       ↓
                     </button>

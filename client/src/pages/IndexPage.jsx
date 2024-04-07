@@ -90,7 +90,7 @@ export default function IndexPage() {
         background: "linear-gradient(to bottom, #FFFFFF, #E0E0E0)",
         minHeight: "90vh",
       }}
-      className="w-full rounded-b-2xl"
+      className="w-full rounded-b-2xl pb-[60px]"
     >
       <MediaNav className="p-1 justify-between" />
       <motion.div
@@ -108,7 +108,7 @@ export default function IndexPage() {
         initial="hidden"
         animate="visible"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 space-x-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 space-x-2 gap-x-4 gap-y-8">
           {currentMedia.map((media) => (
             <motion.div
               key={media._id}
