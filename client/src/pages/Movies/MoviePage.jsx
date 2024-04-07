@@ -49,7 +49,7 @@ export default function MoviePage() {
   useEffect(() => {
     if (isRated && movie && user) {
       const userIndex = movie.hasBeenRatedBy.findIndex((id) => id === user._id);
-      const rating = userIndex !== -1 ? movie.ratings[userIndex] : 0;
+      const rating = userIndex !== -1 ? movie.rating[userIndex] : 0;
       setuserRating(rating);
     }
   }, [isRated, movie, user]);
