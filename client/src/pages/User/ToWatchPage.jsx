@@ -137,7 +137,7 @@ export default function ToWatchPage() {
               >
                 {media.photos?.[0] && (
                   <Image
-                    className="object-cover w-full h-full" // Changed for consistency with Code 1
+                    className="object-cover w-full h-full"
                     src={media.photos[0]}
                     alt={media.title}
                   />
