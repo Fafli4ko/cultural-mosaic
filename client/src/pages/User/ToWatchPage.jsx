@@ -24,7 +24,7 @@ export default function ToWatchPage() {
           const response = await axios.get(
             `/${subpage}/${subpage}/toWatch/${userID}`
           );
-          setCurrentMedia(response.data); // Data is not randomized here
+          setCurrentMedia(response.data);
           setIsLoading(false);
         }
       } catch (error) {
@@ -137,7 +137,7 @@ export default function ToWatchPage() {
               >
                 {media.photos?.[0] && (
                   <Image
-                    className="object-cover w-full"
+                    className="object-cover w-full h-full" // Changed for consistency with Code 1
                     src={media.photos[0]}
                     alt={media.title}
                   />

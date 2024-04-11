@@ -24,7 +24,7 @@ export default function WatchedPage() {
           const response = await axios.get(
             `/${subpage}/${subpage}/watched/${userID}`
           );
-          setCurrentMedia(response.data); // Data is not randomized here
+          setCurrentMedia(response.data);
           setIsLoading(false);
         }
       } catch (error) {
@@ -138,7 +138,7 @@ export default function WatchedPage() {
               >
                 {media.photos?.[0] && (
                   <Image
-                    className="object-cover w-full"
+                    className="object-cover w-full h-full" // Changed for consistency with Code 1
                     src={media.photos[0]}
                     alt={media.title}
                   />
