@@ -14,20 +14,16 @@ app.use(
   })
 );
 
-//#region AuthUser stuff
+//Authentification routes
 app.use("/api/auth", require("./routes/authRoutes"));
-//#endregion
 
-//#region Movie stuff
+//Movies routes
 app.use("/api/movies", require("./routes/movieRoutes"));
-//#endregion
 
-//#region Show stuff
+//Shows routes
 app.use("/api/shows", require("./routes/showRoutes"));
-//#endregion
 
-//#region Book stuff
+//Books routes
 app.use("/api/books", require("./routes/bookRoutes"));
-//#endregion
 
 app.listen(4000);
