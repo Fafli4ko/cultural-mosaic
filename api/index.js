@@ -26,4 +26,7 @@ app.use("/api/shows", require("./routes/showRoutes"));
 //Books routes
 app.use("/api/books", require("./routes/bookRoutes"));
 
+//Photo routes
+app.use("/api/photoUploader", require("./routes/photoUploaderRoutes"));
+
 app.listen(4000);
