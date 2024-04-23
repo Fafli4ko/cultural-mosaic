@@ -164,8 +164,8 @@ export default function BookPage() {
               <div className="flex items-center mb-4">
                 <WatchlistButton
                   user={user}
-                  media={movie}
-                  mediaType="movies"
+                  media={book}
+                  mediaType="books"
                   addToWatchlistText={
                     <WatchLaterIcon className="h-5 w-5 mr-2 text-white" />
                   }
@@ -178,8 +178,8 @@ export default function BookPage() {
               <div>
                 <WatchedButton
                   user={user}
-                  media={movie}
-                  mediaType="movies"
+                  media={book}
+                  mediaType="books"
                   addToWatchedText={
                     <WatchIcon className="h-5 w-5 mr-2 text-white" />
                   }
@@ -213,7 +213,7 @@ export default function BookPage() {
                         Брой оценки:
                       </div>
                       <div className="text-white text-xl ml-2 font-bold">
-                        {movie.hasBeenRatedBy.length}
+                        {book.hasBeenRatedBy.length}
                       </div>
                     </div>
                   </div>
