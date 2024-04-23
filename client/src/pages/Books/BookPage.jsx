@@ -164,8 +164,8 @@ export default function BookPage() {
               <div className="flex items-center mb-4">
                 <WatchlistButton
                   user={user}
-                  media={book}
-                  mediaType="books"
+                  media={movie}
+                  mediaType="movies"
                   addToWatchlistText={
                     <WatchLaterIcon className="h-5 w-5 mr-2 text-white" />
                   }
@@ -178,8 +178,8 @@ export default function BookPage() {
               <div>
                 <WatchedButton
                   user={user}
-                  media={book}
-                  mediaType="books"
+                  media={movie}
+                  mediaType="movies"
                   addToWatchedText={
                     <WatchIcon className="h-5 w-5 mr-2 text-white" />
                   }
@@ -190,6 +190,35 @@ export default function BookPage() {
                 />
               </div>
               {isRated ? (
+                <>
+                  <div className="mt-5">
+                    <div className="flex">
+                      <div className="text-lg font-bold text-white">
+                        Вашата оценка:
+                      </div>
+                      <div className="text-white text-xl mb-2 ml-2 font-bold">
+                        {userRating}
+                      </div>
+                    </div>
+                    <div className="flex">
+                      <div className="text-lg font-bold text-white">
+                        Средна оценка:
+                      </div>
+                      <div className="text-white text-xl mb-2 ml-2 font-bold">
+                        {averageRating.toFixed(1)}
+                      </div>
+                    </div>
+                    <div className="flex">
+                      <div className="text-lg font-bold text-white">
+                        Брой оценки:
+                      </div>
+                      <div className="text-white text-xl ml-2 font-bold">
+                        {movie.hasBeenRatedBy.length}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
                 <>
                   <div className="text-lg font-bold text-white mt-4">
                     Оценете този филм:
@@ -209,33 +238,6 @@ export default function BookPage() {
                       onClick={() => handleRatingChange(-0.5)}
                       className="flex justify-center items-center bg-red-500 hover:bg-red-600 text-white rounded-r-full h-[50px] w-[50px] transition duration-150 ease-in-out"
                       aria-label="Decrease rating"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                  <button
-                    onClick={handleRatingSubmit}
-                    className="bg-[#45ABB8] hover:bg-[#3C95A0] text-white rounded-md px-4 py-2 w-full mt-2"
-                  >
-                    Подайте оценка
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="text-lg font-bold text-white mt-4">
-                    Оценете тази книга:
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <button
-                      onClick={() => handleRatingChange(0.5)}
-                      className="rounded-tl-full rounded-bl-full bg-green-500 hover:bg-green-600 text-white p-2"
-                    >
-                      ↑
-                    </button>
-                    <div className="px-4 py-2 text-white">{rating}</div>
-                    <button
-                      onClick={() => handleRatingChange(-0.5)}
-                      className="rounded-tr-full rounded-br-full bg-red-500 hover:bg-red-600 text-white p-2"
                     >
                       ↓
                     </button>
